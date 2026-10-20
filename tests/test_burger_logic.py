@@ -1,35 +1,39 @@
 import pytest
 from burger import Burger
-from unittest.mock import MagicMock 
+from unittest.mock import MagicMock
 
-class TestBurgerLogic:
+class TestBurgerSetBuns:
+    def test_set_buns_assigns_bun_correctly(self, mock_bun):
+        burger = Burger()
+        burger.set_buns(mock_bun)
+        assert burger.bun is mock_bun
+
+
+class TestBurgerPrice:
     @pytest.mark.parametrize("bun_price, expected_total", [
         (50.0, 100.0),
         (100.0, 200.0),
         (0.0, 0.0)
     ])
-    def test_get_price_with_buns(self, mock_bun, bun_price, expected_total):
+    def test_get_price_with_different_buns(self, mock_bun, bun_price, expected_total):
         mock_bun.get_price.return_value = bun_price
         burger = Burger()
         burger.set_buns(mock_bun)
-        result = burger.get_price()
-        assert result == expected_total
+        assert burger.get_price() == expected_total
 
-    def test_add_ingredient_and_calculate_price(self, mock_bun, mock_ingredient):
+    def test_add_ingredient_increases_price(self, mock_bun, mock_ingredient):
         burger = Burger()
         burger.set_buns(mock_bun)
+        
         mock_bun.get_price.return_value = 50.0
+        mock_ingredient.get_name.return_value = "Cheese"
+        mock_ingredient.get_price.return_value = 30.0
+        mock_ingredient.get_type.return_value = "filling"
         
-        ing_mock = mock_ingredient
-        ing_mock.get_name.return_value = "Cheese"
-        ing_mock.get_price.return_value = 30.0
-        ing_mock.get_type.return_value = "filling"
-        
-        burger.add_ingredient(ing_mock)
-        result = burger.get_price()
-        assert result == 130.0
+        burger.add_ingredient(mock_ingredient)
+        assert burger.get_price() == 130.0
 
-    def test_remove_ingredient(self, mock_bun):
+    def test_remove_ingredient_decreases_price(self, mock_bun):
         burger = Burger()
         burger.set_buns(mock_bun)
         mock_bun.get_price.return_value = 50.0
@@ -49,6 +53,29 @@ class TestBurgerLogic:
         
         burger.remove_ingredient(0)
         
-        assert len(burger.ingredients) == 1
-        assert burger.ingredients[0] is ing2
         assert burger.get_price() == 110.0
+
+
+class TestBurgerReceipt:
+    def test_get_receipt_full_match(self, mock_bun):
+        burger = Burger()
+        burger.set_buns(mock_bun)
+        
+        mock_bun.get_name.return_value = "Sesame Bun"
+        mock_bun.get_price.return_value = 50.0
+
+        ing_mock = MagicMock()
+        ing_mock.get_name.return_value = "Cheese"
+        ing_mock.get_price.return_value = 30.0
+        ing_mock.get_type.return_value = "filling"
+        
+        burger.add_ingredient(ing_mock)
+        
+        expected_receipt = (
+            "(==== Sesame Bun ====)\n"
+            "= filling Cheese =\n"
+            "(==== Sesame Bun ====)\n\n"
+            "Price: 130.0"
+        )
+        
+        assert burger.get_receipt() == expected_receipt

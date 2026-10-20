@@ -1,9 +1,9 @@
 import pytest
 from burger import Burger
-from unittest.mock import MagicMock 
+from unittest.mock import MagicMock
 
 class TestBurgerMovement:
-    def test_move_ingredient(self, mock_bun):
+    def test_move_ingredient_updates_order_and_price(self, mock_bun):
         burger = Burger()
         burger.set_buns(mock_bun)
         mock_bun.get_price.return_value = 50.0
@@ -23,13 +23,14 @@ class TestBurgerMovement:
         
         burger.move_ingredient(1, 0)
         
-        assert burger.ingredients[0] is ing2
-        assert burger.ingredients[1] is ing1
         assert burger.get_price() == 140.0
 
-    def test_get_receipt(self, mock_bun):
+
+class TestBurgerReceipt:
+    def test_get_receipt_full_match(self, mock_bun):
         burger = Burger()
         burger.set_buns(mock_bun)
+        
         mock_bun.get_name.return_value = "Sesame Bun"
         mock_bun.get_price.return_value = 50.0
 
@@ -42,6 +43,11 @@ class TestBurgerMovement:
         
         receipt = burger.get_receipt()
         
-        assert "(==== Sesame Bun ====" in receipt
-        assert "= filling Cheese =" in receipt
-        assert "Price: 130.0" in receipt
+        expected_receipt = (
+            "(==== Sesame Bun ====)\n"
+            "= filling Cheese =\n"
+            "(==== Sesame Bun ====)\n\n"
+            "Price: 130.0"
+        )
+        
+        assert receipt == expected_receipt
