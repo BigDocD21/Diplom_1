@@ -8,22 +8,25 @@ class TestBurgerMovement:
         burger.set_buns(mock_bun)
         mock_bun.get_price.return_value = 50.0
 
-        ing1 = MagicMock()
-        ing1.get_name.return_value = "Cheese"
-        ing1.get_price.return_value = 30.0
-        ing1.get_type.return_value = "filling"
+        cheese = MagicMock()
+        cheese.get_name.return_value = "Cheese"
+        cheese.get_price.return_value = 30.0
+        cheese.get_type.return_value = "filling"
 
-        ing2 = MagicMock()
-        ing2.get_name.return_value = "Tomato"
-        ing2.get_price.return_value = 10.0
-        ing2.get_type.return_value = "filling"
+        tomato = MagicMock()
+        tomato.get_name.return_value = "Tomato"
+        tomato.get_price.return_value = 10.0
+        tomato.get_type.return_value = "filling"
 
-        burger.add_ingredient(ing1)
-        burger.add_ingredient(ing2)
-        
+        burger.add_ingredient(cheese)
+        burger.add_ingredient(tomato)
+
         burger.move_ingredient(1, 0)
         
-        assert burger.get_price() == 140.0
+        expected_order = ["Tomato", "Cheese"]
+        actual_order = [ing.get_name() for ing in burger.ingredients]
+        
+        assert actual_order == expected_order and burger.get_price() == 140.0
 
 
 class TestBurgerReceipt:
@@ -49,5 +52,5 @@ class TestBurgerReceipt:
             "(==== Sesame Bun ====)\n\n"
             "Price: 130.0"
         )
-        
+
         assert receipt == expected_receipt
