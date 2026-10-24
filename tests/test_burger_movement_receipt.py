@@ -3,7 +3,8 @@ from burger import Burger
 from unittest.mock import MagicMock
 
 class TestBurgerMovement:
-    def test_move_ingredient_updates_order_and_price(self, mock_bun):
+    def test_move_ingredient_updates_order(self, mock_bun):
+
         burger = Burger()
         burger.set_buns(mock_bun)
         mock_bun.get_price.return_value = 50.0
@@ -22,11 +23,28 @@ class TestBurgerMovement:
         burger.add_ingredient(tomato)
 
         burger.move_ingredient(1, 0)
-        
+
         expected_order = ["Tomato", "Cheese"]
         actual_order = [ing.get_name() for ing in burger.ingredients]
         
-        assert actual_order == expected_order and burger.get_price() == 140.0
+        assert actual_order == expected_order
+
+    def test_price_calculation(self, mock_bun):
+
+        burger = Burger()
+        burger.set_buns(mock_bun)
+        mock_bun.get_price.return_value = 50.0
+
+        ing1 = MagicMock()
+        ing1.get_price.return_value = 30.0
+        
+        ing2 = MagicMock()
+        ing2.get_price.return_value = 10.0
+
+        burger.add_ingredient(ing1)
+        burger.add_ingredient(ing2)
+
+        assert burger.get_price() == 140.0
 
 
 class TestBurgerReceipt:
